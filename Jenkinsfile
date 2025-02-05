@@ -1,5 +1,9 @@
 pipeline {
-    agent any  // Runs on any available Jenkins agent
+    agent any
+
+    environment {
+        MINIKUBE_DOCKER_ENV = sh(script: "minikube docker-env", returnStdout: true).trim()
+    }
 
     stages {
         stage('Clone Repository') {
@@ -10,8 +14,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'eval $(minikube docker-env)'  // Use Minikube’s local Docker registry
-                sh 'docker build -t flask-app:latest .'
+                sh 'eval $(minikube docker-env) && docker build -t flask-app:latest .'
             }
         }
 
@@ -21,7 +24,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Minikube') {
             steps {
                 sh 'kubectl apply -f deployment.yaml'
             }

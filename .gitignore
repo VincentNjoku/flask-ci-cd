@@ -1,4 +1,5 @@
 # Ignore Kubernetes and Minikube binaries
 kubectl
+venv/
 minikube-darwin-arm64
 
