@@ -1,20 +1,18 @@
 pipeline {
     agent any
 
-    environment {
-        MINIKUBE_DOCKER_ENV = sh(script: "minikube docker-env", returnStdout: true).trim()
-    }
-
     stages {
-        stage('Clone Repository') {
+        stage('Setup Minikube Docker') {
             steps {
-                git branch: 'main', url: 'https://github.com/VincentNjoku/flask-ci-cd.git'
+                sh 'sudo chmod +x /usr/local/bin/minikube'
+                sh 'sudo usermod -aG docker $USER'
+                sh 'eval $(minikube docker-env)'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'eval $(minikube docker-env) && docker build -t flask-app:latest .'
+                sh 'docker build -t flask-app:latest .'
             }
         }
 
@@ -24,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Deploy to Kubernetes') {
             steps {
                 sh 'kubectl apply -f deployment.yaml'
             }
